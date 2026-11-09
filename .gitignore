@@ -1,0 +1,16 @@
+node_modules
+.next
+out
+next-env.d.ts
+*.tsbuildinfo
+.env
+.env.local
+.env*.local
+.vercel
+.DS_Store
+
+# Python (body_flicker)
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/

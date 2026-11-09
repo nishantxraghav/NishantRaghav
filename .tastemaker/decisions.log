@@ -1,0 +1,5 @@
+2026-11-01 pending-review surface=hero axis=concept choice="I build software that notices" reason="Thesis derived from the shared shape of the strongest repos"
+2026-11-01 pending-review surface=global axis=palette choice="green computation pad, ballpoint blue, red pencil" reason="Avoids cream/serif, black/acid and broadsheet defaults"
+2026-11-01 approved surface=hero axis=content choice="No GitHub activity or commit graphs anywhere" reason="User asked to remove them"
+2026-11-01 pending-review surface=hero axis=signature choice="Log file on the ruled lines with one entry out of place, circled by a pencil ring" reason="Expresses noticing and ThreatWatch without any GitHub data; ticks alone read as a particle field"
+2026-11-01 pending-review surface=global axis=restraint choice="Removed scroll progress bar and cursor-following plate label" reason="Generic; the nav marker and Journey line already show position"

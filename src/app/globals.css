@@ -1,0 +1,676 @@
+@import "tailwindcss";
+
+/*
+  Art direction: an engineer's computation pad.
+  paper   green-tinted pad stock          pen     ballpoint, the voice of the page
+  ink     near-black, for reading         pencil  red, reserved for anomalies and the margin rule
+  Legal text pairings (checked): ink, dim, pen and pencil on paper; paper on pen.
+*/
+@theme {
+  --color-paper: #e5ece0;
+  --color-paper-raised: #eff4eb;
+  --color-rule: #c6d3bf;
+  --color-grid: #dde5d7;
+  --color-grid-major: #d1dcca;
+  --color-ink: #12211c;
+  --color-dim: #4a5b51;
+  --color-pen: #1c2bbe;
+  --color-pen-deep: #151f91;
+  --color-pencil: #be2f1c;
+
+  --font-display: var(--font-big-shoulders);
+  --font-sans: var(--font-geist);
+  --font-mono: var(--font-geist-mono);
+
+  --ease-out-soft: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-soft: cubic-bezier(0.77, 0, 0.175, 1);
+
+  /* One scale for every duration: feedback, exits, state change, drawn strokes, reveals, wipes. */
+  --dur-feedback: 160ms;
+  --dur-exit: 220ms;
+  --dur-state: 320ms;
+  --dur-draw: 480ms;
+  --dur-reveal: 560ms;
+  --dur-wipe: 800ms;
+  --step: 36ms;
+
+  --breakpoint-xs: 26rem;
+}
+
+:root {
+  --unit: 24px;
+  --gutter: 16px;
+  --margin: 0px;
+  --page-left: var(--gutter);
+  --nav-h: 56px;
+}
+
+@media (min-width: 40rem) {
+  :root {
+    --gutter: 28px;
+  }
+}
+
+@media (min-width: 64rem) {
+  :root {
+    --gutter: 40px;
+    --margin: 192px;
+    --page-left: calc(var(--margin) + var(--gutter) * 2);
+    --nav-h: 64px;
+  }
+}
+
+@media (min-width: 96rem) {
+  :root {
+    --margin: 264px;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--nav-h) + 24px);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--color-paper);
+  background-image:
+    linear-gradient(var(--color-grid-major) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-grid-major) 1px, transparent 1px),
+    linear-gradient(var(--color-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-grid) 1px, transparent 1px);
+  background-size:
+    calc(var(--unit) * 5) calc(var(--unit) * 5),
+    calc(var(--unit) * 5) calc(var(--unit) * 5),
+    var(--unit) var(--unit),
+    var(--unit) var(--unit);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+::selection {
+  background: var(--color-pen);
+  color: var(--color-paper);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-pen);
+  outline-offset: 3px;
+}
+
+.on-pen :focus-visible {
+  outline-color: var(--color-paper);
+}
+
+/* The sheet: a left margin for metadata, the page for content. */
+.sheet {
+  padding-inline: var(--gutter);
+}
+
+@media (min-width: 64rem) {
+  .sheet {
+    display: grid;
+    grid-template-columns: calc(var(--margin) - var(--gutter)) minmax(0, 1fr);
+    column-gap: calc(var(--gutter) * 2);
+  }
+}
+
+.margin-rule {
+  position: absolute;
+  inset-block: 0;
+  left: calc(var(--margin) + var(--gutter) - 1px);
+  width: 1px;
+  background: var(--color-pencil);
+  opacity: 0.7;
+  pointer-events: none;
+  animation: rule-draw var(--dur-reveal) var(--ease-in-out-soft) both;
+}
+
+/* Draws down the first screen, then opens the rest of the page in one step. */
+@keyframes rule-draw {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  99% {
+    clip-path: inset(0 0 calc(100% - 100dvh) 0);
+  }
+  to {
+    clip-path: inset(0);
+  }
+}
+
+.margin-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.5rem;
+  color: var(--color-dim);
+  letter-spacing: -0.01em;
+}
+
+/* Type */
+.display {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: -0.012em;
+  line-height: 0.92;
+  text-wrap: balance;
+}
+
+.h-section {
+  font-size: clamp(3.25rem, 2rem + 6vw, 7.5rem);
+}
+
+.h-project {
+  font-size: clamp(3.75rem, 2rem + 8vw, 10.5rem);
+  line-height: 0.88;
+}
+
+/* Sized from the page column so the word can never pass the right gutter. */
+.hero-word {
+  font-size: min(
+    calc((100vw - var(--page-left) - var(--gutter)) / 2.58),
+    max(5rem, calc(78svh - 180px)),
+    34rem
+  );
+  line-height: 0.86;
+}
+
+.hero-line {
+  font-size: min(clamp(2.5rem, 1.6rem + 4.4vw, 6.25rem), max(2.25rem, 10.5svh));
+}
+
+.lede {
+  font-size: clamp(1.125rem, 1.05rem + 0.35vw, 1.3125rem);
+  line-height: 1.55;
+  text-wrap: pretty;
+}
+
+.body-copy {
+  font-size: 1rem;
+  line-height: 1.625;
+  text-wrap: pretty;
+}
+
+.tag {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  line-height: 1.5rem;
+  letter-spacing: -0.01em;
+}
+
+/* Links carry a pen underline that draws in from the left. */
+.link-pen {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 100% 1px;
+  transition: background-size 240ms var(--ease-out-soft), color 160ms ease-out;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .link-pen:hover {
+    background-size: 100% 2px;
+  }
+}
+
+/* Hero entrance. CSS, so it starts with first paint rather than after hydration. */
+.word-mask {
+  display: inline-block;
+  overflow: clip;
+  overflow-clip-margin: 0.08em;
+  padding-block: 0.02em;
+  vertical-align: bottom;
+}
+
+/* Letters keep their masked rise but may grow past their slot when the lens passes. */
+.letter-slot {
+  overflow-x: visible;
+  overflow-y: clip;
+}
+
+/* A swapped font can change a line's width, but never how many lines there are. */
+.hero-line .word-mask {
+  white-space: nowrap;
+}
+
+.rise {
+  display: inline-block;
+  animation: rise var(--dur-reveal) var(--ease-out-soft) both;
+  animation-delay: var(--d, 0ms);
+}
+
+@keyframes rise {
+  from {
+    transform: translateY(102%);
+  }
+}
+
+.fade-in {
+  animation: fade-in var(--dur-reveal) ease-out both;
+  animation-delay: var(--d, 0ms);
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* The ring. Hero, TSSPL explainer and contact all draw the same stroke. */
+.ring-path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition:
+    stroke-dashoffset var(--dur-draw) var(--ease-in-out-soft),
+    opacity var(--dur-feedback) ease-out;
+}
+
+[data-ring="drawn"] .ring-path {
+  stroke-dashoffset: 0;
+}
+
+[data-ring="gone"] .ring-path {
+  stroke-dashoffset: 0;
+  opacity: 0;
+}
+
+.field-note {
+  opacity: 0;
+  transition: opacity var(--dur-state) ease-out;
+}
+
+[data-ring="drawn"] .field-note {
+  opacity: 1;
+  transition-delay: 300ms;
+}
+
+/* Scroll reveals. Every hidden start state lives in this block, so reduced motion and
+   no-JS visitors get the finished design, not a broken one. */
+[data-reveal="fade"] {
+  transition:
+    opacity var(--dur-reveal) ease-out,
+    transform var(--dur-wipe) var(--ease-out-soft);
+  transition-delay: var(--d, 0ms);
+}
+
+.title-word {
+  display: inline-block;
+  overflow: clip;
+  overflow-clip-margin: 0.04em;
+  padding-bottom: 0.12em;
+  margin-bottom: -0.12em;
+  vertical-align: bottom;
+}
+
+.title-inner {
+  display: inline-block;
+  transition: transform var(--dur-wipe) var(--ease-out-soft);
+  transition-delay: calc(var(--line, 0) * 90ms);
+}
+
+.write-ink,
+.write-pencil {
+  display: inline-block;
+}
+
+.write-ink {
+  transition: clip-path var(--dur-state) var(--ease-out-soft);
+  transition-delay: calc(var(--i, 0) * var(--step));
+}
+
+.write-pencil {
+  transition: opacity var(--dur-reveal) ease-out;
+  transition-delay: calc(var(--i, 0) * var(--step) + 120ms);
+}
+
+[data-reveal="list"] > li {
+  transition:
+    opacity var(--dur-state) ease-out,
+    transform var(--dur-reveal) var(--ease-out-soft);
+  transition-delay: calc(var(--i, 0) * 60ms);
+}
+
+/* Project image: it wipes in, drifts inside its frame on scroll, and settles on hover. */
+.plate {
+  overflow: hidden;
+  background: var(--color-ink);
+  outline: 1px solid var(--color-ink);
+  transition: clip-path var(--dur-wipe) var(--ease-in-out-soft);
+}
+
+.plate img {
+  transition: transform var(--dur-wipe) var(--ease-out-soft);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .plate:hover img {
+    transform: scale(1.018);
+  }
+}
+
+/* The anomaly chart re-ranks by moving bars, never by redrawing them. */
+.rank-bar {
+  transition: transform var(--dur-reveal) var(--ease-out-soft);
+}
+
+.bar-fill {
+  transform: scaleY(var(--h));
+  transition: transform var(--dur-draw) var(--ease-out-soft);
+}
+
+.chart[data-stage="playing"] .bar-fill {
+  transition-delay: calc(var(--place, 0) * 24ms);
+}
+
+.chart[data-stage="playing"] .chart-cutoff {
+  animation: cutoff-draw var(--dur-draw) var(--ease-in-out-soft) 720ms both;
+}
+
+.chart[data-stage="playing"] .chart-red {
+  animation: chart-red var(--dur-state) ease-out 1180ms both;
+}
+
+@keyframes cutoff-draw {
+  from {
+    clip-path: inset(-2rem 0 100% 0);
+  }
+  to {
+    clip-path: inset(-2rem 0 -1rem 0);
+  }
+}
+
+@keyframes chart-red {
+  from {
+    opacity: 0;
+  }
+}
+
+.swap-in {
+  animation: swap-in var(--dur-state) ease-out both;
+}
+
+@keyframes swap-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Lume: a result slides in the moment the pattern is found. */
+.result-in {
+  animation: fade-in var(--dur-state) var(--ease-out-soft) both;
+}
+
+/* TSSPL explainer: one pass, timed by --t on each piece. */
+.flow[data-played="true"] .flow-wipe {
+  animation: flow-wipe var(--dur-state) var(--ease-out-soft) var(--t, 0ms) both;
+}
+
+.flow[data-played="true"] .flow-fade {
+  animation: chart-red var(--dur-state) ease-out var(--t, 0ms) both;
+}
+
+.flow[data-played="true"] .flow-page {
+  animation: fade-in var(--dur-reveal) var(--ease-out-soft) var(--t, 0ms) both;
+}
+
+.flow[data-played="true"] .flow-line {
+  animation: flow-line var(--dur-state) var(--ease-out-soft) var(--t, 0ms) both;
+  transform-origin: left;
+}
+
+.flow-ring {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+.flow[data-played="true"] .flow-ring {
+  animation: flow-ring var(--dur-draw) var(--ease-in-out-soft) var(--t, 0ms) both;
+}
+
+@keyframes flow-wipe {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 -2% 0 0);
+  }
+}
+
+@keyframes flow-line {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes flow-ring {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.contact-title {
+  font-size: min(clamp(4rem, 1.6rem + 11.5vw, 13.5rem), 17svh);
+  line-height: 0.88;
+}
+
+/* Fits the longest address on the column's width without wrapping. */
+.contact-email {
+  display: inline-block;
+  font-size: min(calc((100vw - var(--page-left) - var(--gutter)) / 9.8), 8.5rem, 13svh);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-reveal="fade"]:not([data-shown]) {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  .js [data-reveal="title"]:not([data-shown]) .title-inner {
+    transform: translateY(106%);
+  }
+
+  .js [data-reveal="wipe"]:not([data-shown]) {
+    clip-path: inset(-6px 100% -6px -6px);
+  }
+
+  .js [data-reveal="wipe"][data-shown] {
+    clip-path: inset(-6px);
+  }
+
+  .js [data-reveal="write"]:not([data-shown]) .write-ink {
+    clip-path: inset(-20% 100% -20% 0);
+  }
+
+  .js [data-reveal="write"]:not([data-shown]) .write-pencil {
+    opacity: 0;
+  }
+
+  .js [data-reveal="write"][data-shown] .write-ink {
+    clip-path: inset(-20% -6% -20% -2%);
+  }
+
+  .js [data-reveal="list"]:not([data-shown]) > li {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+
+  .js .chart[data-stage="waiting"] .bar-fill {
+    transform: scaleY(0);
+  }
+
+  .js .chart[data-stage="waiting"] .chart-cutoff {
+    clip-path: inset(-2rem 0 100% 0);
+  }
+
+  .js .chart[data-stage="waiting"] .chart-red {
+    opacity: 0;
+  }
+
+  .js .flow[data-played="false"] .flow-wipe {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  .js .flow[data-played="false"] .flow-fade,
+  .js .flow[data-played="false"] .flow-page {
+    opacity: 0;
+  }
+
+  .js .flow[data-played="false"] .flow-line {
+    transform: scaleX(0);
+  }
+
+  .js .flow[data-played="false"] .flow-ring {
+    stroke-dashoffset: 1;
+  }
+
+  /* Scroll-linked work runs off the main thread. Browsers without view timelines keep
+     the finished state: a complete line, filled dots and still images. */
+  @supports (animation-timeline: view()) {
+    /* The frame crops a sliver top and bottom and never the sides, so nothing in a
+       screenshot is cut off. */
+    .plate-shift {
+      margin-block: -2%;
+      animation: plate-shift linear both;
+      animation-timeline: view();
+    }
+
+    .journey-line {
+      animation: line-draw linear both;
+      animation-timeline: view(block 62% 38%);
+    }
+
+    .journey-dot::after {
+      animation: dot-mark linear both;
+      animation-timeline: view(block 62% 38%);
+      animation-range: cover -14px cover calc(100% + 22px);
+    }
+  }
+}
+
+@keyframes plate-shift {
+  from {
+    transform: translateY(-3%);
+  }
+  to {
+    transform: translateY(3%);
+  }
+}
+
+@keyframes line-draw {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+/* Hollow until the line reaches it, then it fills with a small overshoot. */
+.journey-dot::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  background: var(--color-pen);
+}
+
+@keyframes dot-mark {
+  from {
+    transform: scale(0);
+  }
+  65% {
+    transform: scale(1.6);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+/* Press feedback shared by every button. */
+.pressable {
+  transition:
+    transform 140ms var(--ease-out-soft),
+    background-color 160ms ease-out,
+    color 160ms ease-out,
+    border-color 160ms ease-out;
+}
+
+.pressable:active {
+  transform: scale(0.97);
+}
+
+dialog.mobile-menu {
+  width: 100%;
+  max-width: 100%;
+  height: 100dvh;
+  max-height: 100dvh;
+  margin: 0;
+  border: 0;
+  padding: 0;
+  background: var(--color-pen);
+  color: var(--color-paper);
+}
+
+dialog.mobile-menu[open] {
+  animation: menu-open var(--dur-draw) var(--ease-out-soft) both;
+}
+
+dialog.mobile-menu[data-closing] {
+  animation: menu-close var(--dur-exit) var(--ease-in-out-soft) both;
+}
+
+/* Opens out of the button that was tapped, and folds back into it. */
+@keyframes menu-open {
+  from {
+    clip-path: circle(0 at calc(100% - var(--gutter) - 12px) calc(var(--nav-h) / 2));
+  }
+  to {
+    clip-path: circle(150vmax at calc(100% - var(--gutter) - 12px) calc(var(--nav-h) / 2));
+  }
+}
+
+@keyframes menu-close {
+  from {
+    clip-path: circle(150vmax at calc(100% - var(--gutter) - 12px) calc(var(--nav-h) / 2));
+  }
+  to {
+    clip-path: circle(0 at calc(100% - var(--gutter) - 12px) calc(var(--nav-h) / 2));
+  }
+}
+
+.mobile-menu[open] .menu-item {
+  animation: menu-item var(--dur-draw) var(--ease-out-soft) both;
+  animation-delay: calc(90ms + var(--i, 0) * 45ms);
+}
+
+@keyframes menu-item {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    transition-delay: 0ms !important;
+  }
+
+}

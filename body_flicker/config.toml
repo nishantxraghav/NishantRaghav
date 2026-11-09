@@ -1,0 +1,42 @@
+# Body Flicker settings. Every value is optional: delete a line to use its default.
+
+[camera]
+index = 0          # 0 is usually the built-in webcam. Try 1 if you see the wrong camera.
+width = 1280
+height = 720
+fps = 30
+
+[sign]
+hold_seconds = 0.6             # how long to hold the sign before it fires
+cooldown_seconds = 2.0         # minimum time between uses
+dropout_grace_seconds = 0.15   # ignore tracking losses shorter than this while holding
+
+# Sign strictness, measured in palm lengths. The preview shows live values.
+max_tip_gap = 0.35             # raise if touching fingers are rejected, lower if a peace sign fires
+extended_ratio = 1.2           # lower if straight fingers are not counted as straight
+curled_ratio = 1.1             # raise if curled fingers are not counted as curled
+thumb_max_reach = 0.9          # raise to allow a looser thumb
+
+[effect]
+style = "electric"             # "electric" (lightning and flash) or "smoke" (smoke and leaves)
+duration_seconds = 0.4         # the vanish or reappear itself
+spark_seconds = 0.8            # electric: how long the sparks and crackles last
+smoke_seconds = 1.3            # smoke: how long the smoke lingers
+leaf_seconds = 2.6             # smoke: how long the last leaves keep falling
+mask_feather_px = 9            # softness of the body outline
+shake_pixels = 9.0             # camera shake on impact, 0 turns it off
+flash_strength = 0.25          # flash of light on impact, 0 turns it off (electric flashes 3x brighter)
+
+[background]
+countdown_seconds = 5          # time to get ready before leaving
+frames = 15                    # empty-room frames needed in a row (about 2 to 3 seconds)
+timeout_seconds = 30           # if you never leave, the hidden area is painted in after this
+
+[vision]
+input_width = 640              # lower is faster, higher sees smaller hands
+max_rate_hz = 15.0             # tracking runs per second; lower it if video stutters
+max_sign_age_seconds = 0.3     # ignore hand signs older than this
+
+[preview]
+width = 640
+mirror = true                  # mirrors the preview only; the call always gets a true image
